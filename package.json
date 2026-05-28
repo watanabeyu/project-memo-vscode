@@ -253,6 +253,7 @@
     "vscode:prepublish": "pnpm run package",
     "compile": "node esbuild.config.mjs",
     "watch": "node esbuild.config.mjs --watch",
+    "package": "node esbuild.config.mjs --production",
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
     "format": "eslint --fix . && prettier --write \"src/**/*.ts\"",
