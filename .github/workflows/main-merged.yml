@@ -8,6 +8,10 @@ on:
     tags:
       - "!*"
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   # release PRを作成
   ReleasePR:
