@@ -1,0 +1,280 @@
+{
+  "name": "project-memo-vscode",
+  "displayName": "Project Memo",
+  "description": "Manage lightweight project-scoped memos (per git repo) in a synced local folder.",
+  "publisher": "watanabeyu",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/watanabeyu/project-memo-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/watanabeyu/project-memo-vscode/issues"
+  },
+  "homepage": "https://github.com/watanabeyu/project-memo-vscode#readme",
+  "keywords": [
+    "memo",
+    "notes",
+    "markdown",
+    "scratchpad",
+    "dropbox"
+  ],
+  "engines": {
+    "node": ">=24",
+    "vscode": "^1.120.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "projectMemo",
+          "title": "Project Memo",
+          "icon": "media/activity-bar.svg"
+        }
+      ]
+    },
+    "views": {
+      "projectMemo": [
+        {
+          "id": "projectMemo.main",
+          "name": "Project Memo",
+          "icon": "media/activity-bar.svg"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "projectMemo.main",
+        "when": "!projectMemo.loaded",
+        "contents": "Loading..."
+      },
+      {
+        "view": "projectMemo.main",
+        "when": "projectMemo.loaded && !projectMemo.rootPathSet",
+        "contents": "Memo root is not set.\n[Choose folder…](command:projectMemo.setRootPath)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "projectMemo.createMemo",
+        "title": "New memo",
+        "category": "Project Memo",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "projectMemo.createMemoAtRoot",
+        "title": "New memo at root",
+        "category": "Project Memo",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "projectMemo.newFolder",
+        "title": "New folder",
+        "category": "Project Memo",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "projectMemo.renameMemo",
+        "title": "Rename",
+        "category": "Project Memo",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "projectMemo.deleteMemo",
+        "title": "Delete",
+        "category": "Project Memo",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "projectMemo.copyAbsolutePath",
+        "title": "Copy absolute path",
+        "category": "Project Memo",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "projectMemo.refresh",
+        "title": "Refresh",
+        "category": "Project Memo",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "projectMemo.togglePreview",
+        "title": "Toggle Markdown Preview",
+        "category": "Project Memo",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "projectMemo.setRootPath",
+        "title": "Set memo root folder…",
+        "category": "Project Memo",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "projectMemo.openSettings",
+        "title": "Open Settings",
+        "category": "Project Memo",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "projectMemo.revealRootInOS",
+        "title": "Reveal memo root in OS",
+        "category": "Project Memo",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "projectMemo.openInNewWindow",
+        "title": "Open in New Window",
+        "category": "Project Memo",
+        "icon": "$(link-external)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "projectMemo.refresh",
+          "when": "view == projectMemo.main",
+          "group": "navigation@1"
+        },
+        {
+          "command": "projectMemo.openSettings",
+          "when": "view == projectMemo.main",
+          "group": "navigation@9"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "projectMemo.createMemo",
+          "when": "view == projectMemo.main && viewItem == folder",
+          "group": "inline@1"
+        },
+        {
+          "command": "projectMemo.openInNewWindow",
+          "when": "view == projectMemo.main && viewItem == file",
+          "group": "inline@1"
+        },
+        {
+          "command": "projectMemo.openInNewWindow",
+          "when": "view == projectMemo.main && viewItem == file",
+          "group": "0_navigate@1"
+        },
+        {
+          "command": "projectMemo.renameMemo",
+          "when": "view == projectMemo.main && viewItem == file",
+          "group": "inline@2"
+        },
+        {
+          "command": "projectMemo.copyAbsolutePath",
+          "when": "view == projectMemo.main && viewItem == file",
+          "group": "inline@3"
+        },
+        {
+          "command": "projectMemo.deleteMemo",
+          "when": "view == projectMemo.main && viewItem == file",
+          "group": "inline@4"
+        },
+        {
+          "command": "projectMemo.newFolder",
+          "when": "view == projectMemo.main && viewItem == folder",
+          "group": "1_create@1"
+        },
+        {
+          "command": "projectMemo.copyAbsolutePath",
+          "when": "view == projectMemo.main && viewItem =~ /^(file|folder)$/",
+          "group": "2_copy@1"
+        },
+        {
+          "command": "projectMemo.renameMemo",
+          "when": "view == projectMemo.main && viewItem =~ /^(file|folder)$/",
+          "group": "3_modify@1"
+        },
+        {
+          "command": "projectMemo.deleteMemo",
+          "when": "view == projectMemo.main && viewItem =~ /^(file|folder)$/",
+          "group": "3_modify@2"
+        },
+        {
+          "command": "projectMemo.createMemoAtRoot",
+          "when": "view == projectMemo.main && viewItem == other-section",
+          "group": "inline@1"
+        },
+        {
+          "command": "projectMemo.revealRootInOS",
+          "when": "view == projectMemo.main && viewItem == other-section",
+          "group": "inline@2"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "projectMemo.togglePreview",
+          "when": "resourceExtname == .md && projectMemo.isMemoFile",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "projectMemo.renameMemo",
+          "when": "false"
+        },
+        {
+          "command": "projectMemo.deleteMemo",
+          "when": "false"
+        },
+        {
+          "command": "projectMemo.copyAbsolutePath",
+          "when": "false"
+        },
+        {
+          "command": "projectMemo.openInNewWindow",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Project Memo",
+      "properties": {
+        "projectMemo.rootPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Root folder where memos are stored. **If unset, you will be prompted to choose one at startup.** Intended to point inside a synced folder such as Dropbox / iCloud Drive / Google Drive (`~` expands to your home directory)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "eslint --fix . && prettier --write \"src/**/*.ts\"",
+    "-----": "",
+    "vsix:package": "pnpm exec vsce package --no-dependencies",
+    "vsix:publish": "pnpm exec vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.10.4",
+    "@types/vscode": "^1.120.0",
+    "@vscode/vsce": "^3.9.1",
+    "esbuild": "^0.24.2",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0"
+  },
+  "packageManager": "pnpm@10.17.1",
+  "dependencies": {
+    "@vscode-elements/elements": "^2.5.1"
+  }
+}

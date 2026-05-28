@@ -1,0 +1,39 @@
+name: "Create Release PR"
+env:
+  CI: true
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "!*"
+
+jobs:
+  # release PRを作成
+  ReleasePR:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: ver
+        id: ver
+        run: |
+          echo "version=$(cat ./package.json | jq -r '.version')" >> $GITHUB_OUTPUT
+
+      - name: Set up Ruby 3.0
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+
+      - name: Create a release pull request
+        env:
+          GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_PR_RELEASE_BRANCH_PRODUCTION: release
+          GIT_PR_RELEASE_BRANCH_STAGING: main
+          GIT_PR_RELEASE_TITLE: "[ReleasePR] v${{ steps.ver.outputs.version }}"
+          GIT_PR_RELEASE_TEMPLATE: .git-merge-develop-pr-template
+        run: |
+          gem install -N git-pr-release -v "2.1.1"
+          git-pr-release --no-fetch

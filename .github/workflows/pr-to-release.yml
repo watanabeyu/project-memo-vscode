@@ -1,0 +1,67 @@
+name: "PR Check (release)"
+
+on:
+  pull_request:
+    types: ["opened", "synchronize"]
+    branches:
+      - release
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Type check
+        run: pnpm run check-types
+
+      - name: Production build
+        run: pnpm run package
+
+      - name: Check version is not already published
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          PUBLISHER=$(node -p "require('./package.json').publisher")
+          NAME=$(node -p "require('./package.json').name")
+          echo "Current version: $CURRENT"
+          echo "Extension: $PUBLISHER.$NAME"
+
+          PUBLISHED=$(pnpm exec vsce show "$PUBLISHER.$NAME" --json 2>/dev/null | jq -r '.versions[0].version' || echo "")
+
+          if [ -z "$PUBLISHED" ] || [ "$PUBLISHED" = "null" ]; then
+            echo "No published version found yet. OK to publish."
+            exit 0
+          fi
+
+          echo "Latest published version: $PUBLISHED"
+
+          if [ "$CURRENT" = "$PUBLISHED" ]; then
+            echo "::error::Version $CURRENT is already published. Bump version in package.json."
+            exit 1
+          fi
+
+          # Ensure current > published using semver
+          npm install -g semver --silent
+          if ! semver -r ">$PUBLISHED" "$CURRENT" >/dev/null; then
+            echo "::error::Current version $CURRENT is not greater than published $PUBLISHED."
+            exit 1
+          fi
+
+          echo "Version $CURRENT is greater than published $PUBLISHED. OK to publish."
